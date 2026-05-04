@@ -1,0 +1,89 @@
+public class Arbol <E extends Comparable <E>>
+{
+	protected NodoABB<E> raiz;
+	protected int talla(NodoABB<E> actual) { 
+	   if (actual == null)  return 0; 
+	   else return actual.talla;
+	}
+	public boolean esVacio(){ return raiz==null; }
+
+
+class NodoABB<E> { //Clase de la variable tipo NodoABB, contiene dato y dos punteros
+    protected E dato;
+    protected NodoABB<E> izq, der;// El dato del puntero izq siempre sera menor al dato actual, y der siempre sera mayor a actual
+    int talla;
+    NodoABB(E e) {
+        this.dato = e;
+        this.izq = null; this.der = null;
+        talla = 1; //numero de nodos por debajo suya (incluyendose)
+    } 
+}
+
+public void insertar(E e, NodoABB <E> actual){ // Queremos insertar un nuevo Nodo ABB con el dato e desde el arbol que empieza en actual
+    if(actual!=null){
+        int cmp= actual.dato.compareTo(e); //Comparamos el nodo actual con el dato para saber por donde tenemos que buscar
+        if(cmp>0){ //Buscamos por la izq
+            if(actual.izq==null){ //Si el siguiente es null insertamos el nuevo dato
+                NodoABB <E> nuevo= new NodoABB<>(e);
+                actual.izq=nuevo;
+            }
+            else{insertar(e,actual.izq);} //Sino seguimos buscando
+        }
+        else{ // Lo mismo con la derecha
+            if(actual.der==null){
+                NodoABB <E> nuevo= new NodoABB<E>(e);
+                actual.der=nuevo;
+            }else{insertar(e,actual.der);}
+            
+        }
+        actual.talla=talla(actual.izq)+talla(actual.der)+1;// Se actualiza la talla de los nodos
+    }
+}
+
+public NodoABB<E> recuperar(E e, NodoABB <E> actual){ 
+    if(actual!=null){
+        int cmp= actual.dato.compareTo(e);//Comparamos el nodo actual para saber donde buscar
+        if(cmp>0) return recuperar(e,actual.izq); //Buscamos por la izq
+        else if(cmp<0) return recuperar(e,actual.der); //Buscamos por la der 
+        else return actual; // devolvemos el nodo porque cmp==0; Ha encontrado el nodo.
+    }
+    return null;
+}
+
+public NodoABB<E> recuperarMin(NodoABB <E> actual){ 
+    if(actual!=null){
+        if(actual.izq==null) return actual; //Buscamos por la izq
+        else return recuperarMin(actual.izq);
+    }
+    else{return null;}
+}
+
+public NodoABB<E> eliminarMin(NodoABB<E> actual) {
+    if (actual == null) return null;
+
+    if (actual.izq == null) { // Significa que hemos encontrado el mínimo en actual
+        return actual.der; // Por tanto devolvemos el puntero derecha 
+    }
+
+    actual.izq = eliminarMin(actual.izq); //Se actualiza el arbol y se elimina el mínimo
+    return actual; //devolvemos el mínimo
+}
+
+public NodoABB<E> eliminar(E e, NodoABB <E> actual){ 
+    if(actual!=null){
+        int cmp= actual.dato.compareTo(e);//Comparamos el nodo actual para saber donde buscar
+        if(cmp>0) actual.izq= eliminar(e,actual.izq); //Buscamos por la izq
+        else if(cmp<0) actual.der= eliminar(e,actual.der); //Buscamos por la der 
+        else{
+            if (actual.izq == null) return actual.der;// Si solo tiene el hijo derecho solo se reasigna el puntero a ese mismo
+            if (actual.der == null) return actual.izq;// Si solo tiene el hijo izquierdo solo se reasigna el puntero a ese mismo
+            actual.dato=recuperarMin(actual.der).dato;
+            actual.der = eliminarMin(actual.der);
+            return actual;
+        }
+        actual.talla=talla(actual.izq)+talla(actual.der)+1;// Se actualiza la talla de los nodos
+    }
+    return null;
+}
+
+}
